@@ -9,7 +9,7 @@ using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
 
 /// <summary>
-/// Controles con propiedades de validación y de base de datos
+/// Controles con propiedades de validación y de MySQL
 /// </summary>
 namespace ControlesWPF
 {
