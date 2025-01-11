@@ -1,14 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Configuration;
-using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Text.RegularExpressions;
-using System.Threading.Tasks;
+﻿using System.Text.RegularExpressions;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Controls.Primitives;
 using System.Windows.Input;
 
 /// <summary>
@@ -158,7 +150,7 @@ namespace ControlesWPF
             //Evita al usuario colocar un espacio cuando se tienen que elimitar todos los espacios
             if (EliminarTodosLosEspacios)
                 e.Handled = e.Key == Key.Space;
-            
+
             //Cambia de Focus al siguiente control cuando se presiona Enter
             if (TabConIntro && !AcceptsReturn && e.Key == Key.Enter)
             {
