@@ -1,4 +1,5 @@
-﻿using System.Text.RegularExpressions;
+﻿using System.ComponentModel;
+using System.Text.RegularExpressions;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
@@ -120,7 +121,6 @@ namespace ControlesWPF
 
         #endregion
 
-
         #endregion
 
         #region Eventos
@@ -146,7 +146,6 @@ namespace ControlesWPF
         {
             base.OnPreviewKeyDown(e);
 
-
             //Evita al usuario colocar un espacio cuando se tienen que elimitar todos los espacios
             if (EliminarTodosLosEspacios)
                 e.Handled = e.Key == Key.Space;
@@ -155,6 +154,7 @@ namespace ControlesWPF
             if (TabConIntro && !AcceptsReturn && e.Key == Key.Enter)
             {
                 e.Handled = true;
+
                 FrameworkElement? ue = (FrameworkElement?)e.OriginalSource;
                 ue?.MoveFocus(new TraversalRequest(FocusNavigationDirection.Next));
             }
