@@ -1,5 +1,4 @@
-﻿using System.ComponentModel;
-using System.Text.RegularExpressions;
+﻿using System.Text.RegularExpressions;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
@@ -14,17 +13,9 @@ namespace ControlesWPF
     /// </summary>
     public class TextboxValidacion : TextBox
     {
+        private bool TextPasted = false;
 
-        #region Variables
-
-        private string? PastedText;
-
-        #endregion
-
-        public TextboxValidacion()
-        {
-            DataObject.AddPastingHandler(this, OnPaste);
-        }
+        public TextboxValidacion() => DataObject.AddPastingHandler(this, OnPaste);
 
         #region Propiedades
 
@@ -121,6 +112,22 @@ namespace ControlesWPF
 
         #endregion
 
+        #region AceptarSoloDigitos
+
+        public bool AceptarSoloDigitos
+        {
+            get { return (bool)GetValue(AceptarSoloDigitosProperty); }
+            set { SetValue(AceptarSoloDigitosProperty, value); }
+        }
+
+        // Using a DependencyProperty as the backing store for AcetarSoloDigitos.  This enables animation, styling, binding, etc...
+        public static readonly DependencyProperty AceptarSoloDigitosProperty =
+            DependencyProperty.Register("AceptarSoloDigitos", typeof(bool), typeof(TextboxValidacion), new PropertyMetadata(false));
+
+
+
+        #endregion
+
         #endregion
 
         #region Eventos
@@ -130,16 +137,22 @@ namespace ControlesWPF
             base.OnLostFocus(e);
 
             if (RecortarEspacios)
+            {
                 Text = Text.Trim();
-            if (EliminarDobleEspacios)
-                Text = Regex.Replace(Text, " {2,}", " ");
+            }
 
+            if (EliminarDobleEspacios)
+            {
+                Text = Regex.Replace(Text, " {2,}", " ");
+            }
         }
 
         protected virtual void OnPaste(object sender, DataObjectPastingEventArgs e)
         {
             if (e.SourceDataObject.GetDataPresent(DataFormats.UnicodeText, true))
-                PastedText = (string)e.SourceDataObject.GetData(DataFormats.UnicodeText);
+            {
+                TextPasted = true;
+            }
         }
 
         protected override void OnPreviewKeyDown(KeyEventArgs e)
@@ -148,7 +161,9 @@ namespace ControlesWPF
 
             //Evita al usuario colocar un espacio cuando se tienen que elimitar todos los espacios
             if (EliminarTodosLosEspacios)
+            {
                 e.Handled = e.Key == Key.Space;
+            }
 
             //Cambia de Focus al siguiente control cuando se presiona Enter
             if (TabConIntro && !AcceptsReturn && e.Key == Key.Enter)
@@ -158,26 +173,54 @@ namespace ControlesWPF
                 FrameworkElement? ue = (FrameworkElement?)e.OriginalSource;
                 ue?.MoveFocus(new TraversalRequest(FocusNavigationDirection.Next));
             }
+
+            if (e.Key == Key.V && (Keyboard.Modifiers & ModifierKeys.Control) == ModifierKeys.Control)
+            {
+                return;
+            }
+
+        }
+
+        protected override void OnPreviewTextInput(TextCompositionEventArgs e)
+        {
+            base.OnPreviewTextInput(e);
+
+            if (AceptarSoloDigitos)
+            {
+                Regex regex = new Regex("[^0-9]+");
+                e.Handled = regex.IsMatch(e.Text);
+            }
         }
 
         protected override void OnTextChanged(TextChangedEventArgs e)
         {
             base.OnTextChanged(e);
 
-            //Recorta o elimina los dobles espaiocs cuando se pega texto dentro del TextBox
-            if (Text == PastedText)
+            if (TextPasted)
             {
                 if (RecortarEspacios)
+                {
                     Text = Text.Trim();
+                }
 
                 if (EliminarDobleEspacios)
+                {
                     Text = Regex.Replace(Text, " {2,}", " ");
+                }
 
                 if (EliminarTodosLosEspacios)
+                {
                     Text = Regex.Replace(Text, @"\s+", string.Empty);
+                }
 
-                PastedText = string.Empty;
+                if (AceptarSoloDigitos)
+                {
+                    Text = Regex.Replace(Text, @"[^\d]", string.Empty);
+                }
+
                 SelectionStart = Text.Length;
+
+                TextPasted = false;
             }
         }
 
