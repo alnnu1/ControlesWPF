@@ -2,6 +2,7 @@
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 /// <summary>
 /// Controles con propiedades de validación y funciones de MySQL
@@ -14,7 +15,7 @@ namespace ControlesWPF
     public class TextboxValidacion : TextBox
     {
         private bool TextPasted = false;
-
+        private string PastedText = string.Empty;
         public TextboxValidacion() => DataObject.AddPastingHandler(this, OnPaste);
 
         #region Propiedades
@@ -152,6 +153,7 @@ namespace ControlesWPF
             if (e.SourceDataObject.GetDataPresent(DataFormats.UnicodeText, true))
             {
                 TextPasted = true;
+                PastedText = e.SourceDataObject.GetData(DataFormats.UnicodeText, true) as string ?? string.Empty;
             }
         }
 
@@ -200,27 +202,28 @@ namespace ControlesWPF
             {
                 if (RecortarEspacios)
                 {
-                    Text = Text.Trim();
+                    Text = PastedText.Trim();
                 }
 
                 if (EliminarDobleEspacios)
                 {
-                    Text = Regex.Replace(Text, " {2,}", " ");
+                    Text = Regex.Replace(PastedText, " {2,}", " ");
                 }
 
                 if (EliminarTodosLosEspacios)
                 {
-                    Text = Regex.Replace(Text, @"\s+", string.Empty);
+                    Text = Regex.Replace(PastedText, @"\s+", string.Empty);
                 }
 
                 if (AceptarSoloDigitos)
                 {
-                    Text = Regex.Replace(Text, @"[^\d]", string.Empty);
+                    Text = Regex.Replace(PastedText, @"\D", string.Empty);
                 }
 
                 SelectionStart = Text.Length;
 
                 TextPasted = false;
+                PastedText = string.Empty;
             }
         }
 
